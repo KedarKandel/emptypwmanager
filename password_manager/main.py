@@ -83,25 +83,59 @@ def add_password():
         None
     """
 
+    website = input("Enter website: ").strip()
+    username = input("Enter username: ").strip()
     
+    while True:
+        choice = input("Generate password? (y/n): ").lower()
+        if choice == 'y':
+            length = int(input("Enter password length (default 8): ") or 8)
+            password = generate_password(length)
+            print(f"Generated password: {password}")
+            break
+        elif choice == 'n':
+            password = input("Enter password: ")
+            if not is_strong_password(password):
+                print("Warning: Password is not strong!")
+                continue_anyway = input("Continue anyway? (y/n): ").lower()
+                if continue_anyway != 'y':
+                    continue
+            break
+        else:
+            print("Invalid choice")
+    
+    encrypted_passwords.append(caesar_encrypt(password, SHIFT))
+    websites.append(website)
+    usernames.append(username)
+    print("Password added successfully!")
 
+# Function to retrieve a password 
+def get_password():
+    """
+    Retrieve a password for a given website.
 
-# Function to save passwords to a JSON file 
-def save_passwords():
- 
- 
- """
-    Save the password vault to a file.
-    This function should save passwords, websites, and usernames to a text
-    file named "vault.txt" in a structured format.
+    This function should prompt the user for the website name and
+    then display the username and decrypted password for that website.
     Returns:
         None
-     """
+    """
+    website = input("Enter website: ").strip()
+    try:
+        index = websites.index(website)
+        decrypted = caesar_decrypt(encrypted_passwords[index], SHIFT)
+        print(f"\nWebsite: {website}")
+        print(f"Username: {usernames[index]}")
+        print(f"Password: {decrypted}\n")
+    except ValueError:
+        print("Website not found in vault")
+
+
+
 
 
 # Function to load passwords from a JSON file 
 def load_passwords():
-     """
+    """
     Load passwords from a file into the password vault.
 
     This function should load passwords, websites, and usernames from a text
@@ -110,6 +144,14 @@ def load_passwords():
     Returns:
         None
     """
+     
+    with open("vault.txt", "r") as file:
+     for line in file:  
+         parts = line.strip().split("|")
+
+    return 
+
+
   # Main method
 def main():
 
