@@ -26,7 +26,7 @@ def caesar_decrypt(text, shift):
 
 # Password strength checker function (optional)
 """
-    Requirements:
+    Rules to generate password:
     - At least 8 characters long
     - Contains uppercase and lowercase letters
     - Contains at least one digit
@@ -53,13 +53,13 @@ def generate_password(length):
     special = string.punctuation
     
     characters = letters + digits + special
+    print(characters)
     password = ""
     while len(password) < length:
         new_char = random.choice(characters)
         password += new_char
 
     if is_strong_password(password):
-        print(password)
         return password
     else:
         return generate_password(length)
@@ -70,6 +70,7 @@ encrypted_passwords = []
 websites = []
 usernames = []
 SHIFT = 10  # Shift value to encrypt and decrypt using caesar cipher
+DELIMITER = '\t' # divides the entries in vault.txt
 
 
 # Function to add a new password 
@@ -113,7 +114,6 @@ def add_password():
 def get_password():
     """
     Retrieve a password for a given website.
-
     This function should prompt the user for the website name and
     then display the username and decrypted password for that website.
     Returns:
@@ -134,35 +134,32 @@ def get_password():
 # Function to save passwords to a JSON file 
 def save_passwords():
  
- 
- """
+    """
     Save the password vault to a file.
     This function should save passwords, websites, and usernames to a text
     file named "vault.txt" in a structured format.
     Returns:
         None
-     """
-    
- try:
-    with open('vault.txt', 'w') as f:
-        for i, (site, user, password) in enumerate(zip(websites, usernames, encrypted_passwords), 1):
-            f.write(f"#{i}: {site} | {user} | {password}\n")
-    print("Passwords saved to vault.txt with numbered entries")
- except Exception as e:
-    print(f"Error saving passwords: {str(e)}") 
+    """
+    try:
+      with open('vault.txt', 'w') as f:
+        for i in range(len(websites)):
+            f.write(f"#{i+1}: {websites[i]} {DELIMITER} {usernames[i]} {DELIMITER} {encrypted_passwords[i]}\n") 
+            #starts with "#{i}" to check while loading
+      print("Passwords saved to vault.txt with numbered entries")
+    except Exception as e:
+      print(f"Error saving passwords: {str(e)}")
 
 # Function to load passwords from a JSON file 
 def load_passwords():
     """
     Load passwords from a file into the password vault.
-
     This function should load passwords, websites, and usernames from a text
     file named "vault.txt" (or a more generic name) and populate the respective lists.
-
     Returns:
-        None
+       None
+       -- I changed it to return True or False so that i can use it to deliver success or failure message.
     """
-
     # clear the lists before loading (avoids duplicates)
     websites.clear()
     usernames.clear()
@@ -171,12 +168,12 @@ def load_passwords():
     try:
         with open("vault.txt", "r") as file:
             for line in file:
-                if line.startswith("#"):
-                    parts = line.split('|')
+                if line.startswith("#"): 
+                    parts = line.split(DELIMITER)
                     if len(parts) == 3:
                         websites.append(parts[0].split(':')[1].strip())
                         usernames.append(parts[1].strip())
-                        encrypted_passwords.append(parts[2].strip())  # password remain encrypted
+                        encrypted_passwords.append(parts[2].strip())
         print(websites, usernames, encrypted_passwords)               
         return True
     except FileNotFoundError:
@@ -189,7 +186,7 @@ def load_passwords():
 
 # Main method
 def main():
-
+  
   while True:
     print("\nPassword Manager Menu:")
     print("1. Add Password")
@@ -208,7 +205,11 @@ def main():
         save_passwords()
     elif choice == "4":
         passwords = load_passwords()
-        print("Passwords loaded successfully!")
+        # minor changes: Utilizing the boolean return value of the function to print the result.
+        if passwords == True:
+            print("Passwords alongside websites and usernames loaded successfully!", passwords)
+        else:
+            print("Problem loading passwords, websites and usernames!", passwords)
     elif choice == "5":
         break
     else:
