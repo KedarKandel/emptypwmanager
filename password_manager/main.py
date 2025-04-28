@@ -70,7 +70,7 @@ encrypted_passwords = []
 websites = []
 usernames = []
 SHIFT = 10  # Shift value to encrypt and decrypt using caesar cipher
-DELIMITER = '\t' # divides the entries in vault.txt
+DELIMITER = '¤' # divides the entries in vault.txt(never appears in string.punctuation)
 
 
 # Function to add a new password 
@@ -143,6 +143,8 @@ def save_passwords():
     """
     try:
       with open('vault.txt', 'w') as f:
+        # write the headers
+        f.write(f"{'SerialNo'} {DELIMITER} {'Website'} {DELIMITER} {'Username'} {DELIMITER} {'Password'}\n")
         for i in range(len(websites)):
             f.write(f"#{i+1}: {websites[i]} {DELIMITER} {usernames[i]} {DELIMITER} {encrypted_passwords[i]}\n") 
             #starts with "#{i}" to check while loading
