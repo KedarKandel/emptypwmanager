@@ -131,7 +131,25 @@ def get_password():
 
 
 
-
+# Function to save passwords to a JSON file 
+def save_passwords():
+ 
+ 
+ """
+    Save the password vault to a file.
+    This function should save passwords, websites, and usernames to a text
+    file named "vault.txt" in a structured format.
+    Returns:
+        None
+     """
+    
+ try:
+    with open('vault.txt', 'w') as f:
+        for i, (site, user, password) in enumerate(zip(websites, usernames, encrypted_passwords), 1):
+            f.write(f"#{i}: {site} | {user} | {password}\n")
+    print("Passwords saved to vault.txt with numbered entries")
+ except Exception as e:
+    print(f"Error saving passwords: {str(e)}") 
 
 # Function to load passwords from a JSON file 
 def load_passwords():
@@ -144,17 +162,33 @@ def load_passwords():
     Returns:
         None
     """
-     
-    with open("vault.txt", "r") as file:
-     for line in file:  
-         parts = line.strip().split("|")
 
-    return 
+    # clear the lists before loading (avoids duplicates)
+    websites.clear()
+    usernames.clear()
+    encrypted_passwords.clear()
 
+    try:
+        with open("vault.txt", "r") as file:
+            for line in file:
+                if line.startswith("#"):
+                    parts = line.split('|')
+                    if len(parts) == 3:
+                        websites.append(parts[0].split(':')[1].strip())
+                        usernames.append(parts[1].strip())
+                        encrypted_passwords.append(parts[2].strip())  # password remain encrypted
+        print(websites, usernames, encrypted_passwords)               
+        return True
+    except FileNotFoundError:
+        print("Error: vault.txt not found")
+        return False
+    except Exception as e:
+        print(f"Error loading passwords: {str(e)}")
+        return False      
+      
 
-  # Main method
+# Main method
 def main():
-
 
   while True:
     print("\nPassword Manager Menu:")
