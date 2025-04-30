@@ -14,8 +14,8 @@ class TestPasswordManager(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Initialize test data"""
-        cls.test_websites = ["www.google.com", "github.com"]
-        cls.test_usernames = ["www.testuser1", "dev2023"]
+        cls.test_websites = ["www.google.com", "www.github.com"]
+        cls.test_usernames = ["testuser1", "dev2023"]
         cls.test_passwords = ["T€stP@ss1", "S3cur3Pwd§"]
         cls.test_file = "test_vault.txt"
 
