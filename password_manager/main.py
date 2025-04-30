@@ -53,7 +53,6 @@ def generate_password(length):
     special = string.punctuation
     
     characters = letters + digits + special
-    print(characters)
     password = ""
     while len(password) < length:
         new_char = random.choice(characters)
@@ -70,6 +69,7 @@ encrypted_passwords = []
 websites = []
 usernames = []
 SHIFT = 10  # Shift value to encrypt and decrypt using caesar cipher
+DEFAULT_FILE = "vault.txt" # easy to handle while testing
 DELIMITER = '¤' # divides the entries in vault.txt(never appears in string.punctuation)
 
 
@@ -132,7 +132,7 @@ def get_password():
 
 
 # Function to save passwords to a JSON file 
-def save_passwords():
+def save_passwords(filename = "vault.txt"):
  
     """
     Save the password vault to a file.
@@ -142,18 +142,18 @@ def save_passwords():
         None
     """
     try:
-      with open('vault.txt', 'w') as f:
+      with open(filename, 'w') as f:
         # write the headers
         f.write(f"{'SerialNo'} {DELIMITER} {'Website'} {DELIMITER} {'Username'} {DELIMITER} {'Password'}\n")
         for i in range(len(websites)):
             f.write(f"#{i+1}: {websites[i]} {DELIMITER} {usernames[i]} {DELIMITER} {encrypted_passwords[i]}\n") 
-            #starts with "#{i}" to check while loading
-      print("Passwords saved to vault.txt with numbered entries")
+            #starts with "#{i}"  
+      print("Passwords saved to vault.txt")
     except Exception as e:
       print(f"Error saving passwords: {str(e)}")
 
 # Function to load passwords from a JSON file 
-def load_passwords():
+def load_passwords(filename = "vault.txt"):
     """
     Load passwords from a file into the password vault.
     This function should load passwords, websites, and usernames from a text
@@ -168,7 +168,7 @@ def load_passwords():
     encrypted_passwords.clear()
 
     try:
-        with open("vault.txt", "r") as file:
+        with open(filename, "r") as file:
             for line in file:
                 if line.startswith("#"): 
                     parts = line.split(DELIMITER)
@@ -176,7 +176,7 @@ def load_passwords():
                         websites.append(parts[0].split(':')[1].strip())
                         usernames.append(parts[1].strip())
                         encrypted_passwords.append(parts[2].strip())
-        print(websites, usernames, encrypted_passwords)               
+        #print(websites, usernames, encrypted_passwords)           
         return True
     except FileNotFoundError:
         print("Error: vault.txt not found")
