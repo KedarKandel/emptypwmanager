@@ -34,7 +34,9 @@ def caesar_decrypt(text, shift):
 """
 def is_strong_password(password):
     if len(password) < 8:
+        print("Default password length is 8")
         return False
+    
     if not re.search(r'[A-Z]', password):
         return False
     if not re.search(r'[a-z]', password):
@@ -84,16 +86,23 @@ def add_password():
         None
     """
 
-    website = input("Enter website: ").strip()
-    username = input("Enter username: ").strip()
+    website = input("Enter website: ").strip().lower()
+    username = input("Enter username: ").strip().lower()
     
     while True:
         choice = input("Generate password? (y/n): ").lower()
-        if choice == 'y':
-            length = int(input("Enter password length (default 8): ") or 8)
-            password = generate_password(length)
-            print(f"Generated password: {password}")
-            break
+        if choice == 'y':  
+          while True:
+            try:
+                length = int(input("Enter password length (minimum 8): ") or 8)
+                if length < 8:
+                    print("Password length must be at least 8 characters. Please try again.")
+                else:
+                    password = generate_password(length)
+                    break
+            except ValueError:
+                print("Please enter a valid number.")
+          break
         elif choice == 'n':
             password = input("Enter password: ")
             if not is_strong_password(password):
@@ -119,13 +128,13 @@ def get_password():
     Returns:
         None
     """
-    website = input("Enter website: ").strip()
+    website = input("Enter website: ").strip().lower()
     try:
         index = websites.index(website)
         decrypted = caesar_decrypt(encrypted_passwords[index], SHIFT)
-        print(f"\nWebsite: {website}")
-        print(f"Username: {usernames[index]}")
-        print(f"Password: {decrypted}\n")
+        print(f"\nYour Website is: {website}")
+        print(f"Your Username is: {usernames[index]}")
+        print(f"Your Password is: {decrypted}\n")
     except ValueError:
         print("Website not found in vault")
 
@@ -176,7 +185,7 @@ def load_passwords(filename = "vault.txt"):
                         websites.append(parts[0].split(':')[1].strip())
                         usernames.append(parts[1].strip())
                         encrypted_passwords.append(parts[2].strip())
-        #print(websites, usernames, encrypted_passwords)           
+        print(websites, usernames, encrypted_passwords)           
         return True
     except FileNotFoundError:
         print("Error: vault.txt not found")
@@ -207,7 +216,7 @@ def main():
         save_passwords()
     elif choice == "4":
         passwords = load_passwords()
-        # minor changes: Utilizing the boolean return value of the function to print the result.
+        # Utilizing the boolean return value of the function to print the result.
         if passwords == True:
             print("Passwords alongside websites and usernames loaded successfully!", passwords)
         else:
