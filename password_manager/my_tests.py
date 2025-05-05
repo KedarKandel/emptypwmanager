@@ -1,5 +1,6 @@
 import unittest
 import os
+import json
 import string
 from main import (
     generate_password,
@@ -7,7 +8,6 @@ from main import (
     load_passwords,
     is_strong_password,
     websites, usernames, encrypted_passwords,
-    DELIMITER
 )
 
 class TestPasswordManager(unittest.TestCase):
@@ -48,38 +48,36 @@ class TestPasswordManager(unittest.TestCase):
         self.assertFalse(is_strong_password("noSpecialChars123"))
 
     def test_save_and_load(self):
-        """Test saving and loading with consistent filenames"""
-       
+        """Test saving and loading passwords in JSON format"""
         # Prepare test data
         websites.extend(self.test_websites)
         usernames.extend(self.test_usernames)
         encrypted_passwords.extend(self.test_passwords)
-        
+
         # Test saving
-        save_passwords(filename="test_vault.txt")
+        save_passwords(filename=self.test_file)
         self.assertTrue(os.path.exists(self.test_file))
-        
-        # Verify file content
+
+        # Verify JSON content structure
         with open(self.test_file, 'r', encoding='utf-8') as f:
-            first_line = f.readline()
-            self.assertIn(DELIMITER, first_line)
-        
+            data = json.load(f)
+            self.assertIsInstance(data, list)  # Should be a list of entries
+            self.assertEqual(len(data), 2)     # Should have 2 entries
+            self.assertEqual(data[0]["Website"], self.test_websites[0])
+            self.assertEqual(data[1]["Username"], self.test_usernames[1])
+
         # Test loading
         websites.clear()
         usernames.clear()
         encrypted_passwords.clear()
-        
-        load_passwords(filename="test_vault.txt")
+
+        success = load_passwords(filename=self.test_file)
+        self.assertTrue(success)
         self.assertEqual(len(websites), 2)
         self.assertEqual(websites[0], self.test_websites[0])
         self.assertEqual(usernames[1], self.test_usernames[1])
-      
-
-    def test_delimiter_safety(self):
-        ''' Verify delimiter isn't in any character set'''
-        self.assertNotIn(DELIMITER, string.ascii_letters)
-        self.assertNotIn(DELIMITER, string.digits)
-        self.assertNotIn(DELIMITER, string.punctuation)
+        self.assertEqual(encrypted_passwords[1], self.test_passwords[1])
+    
 
     def tearDown(self):
         """Clean up after each test"""

@@ -72,7 +72,6 @@ websites = []
 usernames = []
 SHIFT = 10  # Shift value to encrypt and decrypt using caesar cipher
 DEFAULT_FILE = "vault.txt" # easy to handle while testing
-DELIMITER = '¤' # divides the entries in vault.txt(never appears in string.punctuation)
 
 
 # Function to add a new password 
@@ -141,25 +140,35 @@ def get_password():
 
 
 # Function to save passwords to a JSON file 
-def save_passwords(filename = "vault.txt"):
- 
+import json
+
+def save_passwords(filename="vault.txt"):
     """
-    Save the password vault to a file.
-    This function should save passwords, websites, and usernames to a text
-    file named "vault.txt" in a structured format.
+    Save the password vault to a JSON file.
+    This function saves passwords, websites, and usernames in a structured JSON format.
+    
     Returns:
         None
     """
     try:
-      with open(filename, 'w') as f:
-        # write the headers
-        f.write(f"{'SerialNo'} {DELIMITER} {'Website'} {DELIMITER} {'Username'} {DELIMITER} {'Password'}\n")
+        # create a empty distionary
+        password_data = []
         for i in range(len(websites)):
-            f.write(f"#{i+1}: {websites[i]} {DELIMITER} {usernames[i]} {DELIMITER} {encrypted_passwords[i]}\n") 
-            #starts with "#{i}"  
-      print("Passwords saved to vault.txt")
+            entry = {
+                "SerialNo": i + 1,
+                "Website": websites[i],
+                "Username": usernames[i],
+                "Password": encrypted_passwords[i]
+            }
+            password_data.append(entry)
+        
+        # Write to JSON file
+        with open(filename, 'w') as f:
+            json.dump(password_data, f, indent=4)  # indent=4 for pretty formatting
+        
+        print(f"Passwords saved to {filename}")
     except Exception as e:
-      print(f"Error saving passwords: {str(e)}")
+        print(f"Error saving passwords: {str(e)}")
 
 # Function to load passwords from a JSON file 
 def load_passwords(filename = "vault.txt"):
@@ -178,14 +187,13 @@ def load_passwords(filename = "vault.txt"):
 
     try:
         with open(filename, "r") as file:
-            for line in file:
-                if line.startswith("#"): 
-                    parts = line.split(DELIMITER)
-                    if len(parts) == 3:
-                        websites.append(parts[0].split(':')[1].strip())
-                        usernames.append(parts[1].strip())
-                        encrypted_passwords.append(parts[2].strip())
-        print(websites, usernames, encrypted_passwords)           
+            password_data = json.load(file)
+            for entry in password_data:
+                websites.append(entry["Website"])
+                usernames.append(entry["Username"])
+                encrypted_passwords.append(entry["Password"])
+        print(websites, usernames, encrypted_passwords)
+        print("Passwords loaded successfully.")           
         return True
     except FileNotFoundError:
         print("Error: vault.txt not found")
@@ -216,11 +224,8 @@ def main():
         save_passwords()
     elif choice == "4":
         passwords = load_passwords()
-        # Utilizing the boolean return value of the function to print the result.
-        if passwords == True:
-            print("Passwords alongside websites and usernames loaded successfully!", passwords)
-        else:
-            print("Problem loading passwords, websites and usernames!", passwords)
+        if passwords == True:       
+          print("Passwords alongside websites and usernames loaded successfully!")
     elif choice == "5":
         break
     else:
